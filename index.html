@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HyroCore2500 calc</title>
 <style>
-:root{--bg:#0a1420;--card:#111e2d;--card2:#182a3d;--ink:#eef2f6;--mute:#8396a8;--line:#243649;--ok:#5ad7ae;--warn:#f2b04a;--bad:#ff6f61;--accent:#e6b95f;--okbg:rgba(90,215,174,.12);--warnbg:rgba(242,176,74,.13);--badbg:rgba(255,111,97,.14);--spring:cubic-bezier(.2,.9,.25,1.15);--dx:44px;--glow:#1b2f47}
+:root{--bg:#0d0b14;--card:#16131f;--card2:#1f1a2e;--ink:#f3f0fa;--mute:#9a93b3;--line:#2b2640;--ok:#4fe3b0;--warn:#ffc05a;--bad:#ff6b7a;--accent:#8b7cff;--okbg:rgba(79,227,176,.12);--warnbg:rgba(255,192,90,.13);--badbg:rgba(255,107,122,.14);--spring:cubic-bezier(.2,.9,.25,1.15);--dx:44px;--glow:#2a2150}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}
 html,body{color:var(--ink);font:15px/1.4 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
@@ -78,28 +78,61 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 table{width:100%;border-collapse:collapse;font-size:14px}td{padding:8px 0;border-top:1px solid var(--line);vertical-align:top}td:last-child{text-align:right;font-weight:600}
 .note{font-size:12px;color:var(--mute);margin-top:6px}a{color:var(--accent)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+body[data-s=ok]{--glow:#0e6b52}body[data-s=warn]{--glow:#8a5a10}body[data-s=bad]{--glow:#8f2a3a}
+.btn,.step em,nav button.on{color:#fff}.btn{box-shadow:0 8px 26px rgba(139,124,255,.3)}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(139,124,255,.22)}
+nav{position:sticky;top:8px;bottom:auto;left:auto;transform:none;width:auto;margin:6px 14px 12px;padding:4px;border-radius:18px;background:var(--card);box-shadow:none}
+#pill{top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:14px}
+main{padding-bottom:130px}
+.hero{padding:14px;gap:14px;margin-bottom:8px}.rw,.ring{width:108px;height:108px}.rc b{font-size:19px}
+.pairbtn{width:100%;display:flex;align-items:center;gap:10px;padding:14px;border:1.5px solid var(--line);border-radius:16px;background:var(--bg);color:var(--ink);font:inherit;text-align:left;transition:border-color .25s,transform .25s var(--spring)}
+.pairbtn:active{transform:scale(.97);border-color:var(--accent)}
+#pairsym{flex:1;font:700 22px Georgia,serif}#pairsym small{font:500 13px system-ui;color:var(--mute)}
+#pairpx{font-weight:700;text-align:right}#pairpx em{display:block;font-style:normal;font-size:12px}
+.pairbtn svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2.5}
+.chips{display:flex;gap:6px;margin-top:8px}.chips button{flex:1;padding:8px 0;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--mute);font:inherit;font-weight:700;transition:all .25s var(--spring)}
+.chips button:active{transform:scale(.92);border-color:var(--accent);color:var(--ink)}
+.trk2{position:relative;height:6px;background:var(--line);border-radius:3px;margin:38px 8px 34px}
+.seg2{position:absolute;top:0;height:6px}.seg2.bad{background:var(--bad)}.seg2.ok{background:var(--ok)}
+.mk{position:absolute;top:-6px;width:2px;height:18px;background:var(--ink);transform:translateX(-1px)}
+.mk u{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:11px;text-decoration:none;color:var(--mute);white-space:nowrap}
+.mk.l{background:var(--accent);width:4px;border-radius:2px;transform:translateX(-2px)}.mk.l u{bottom:auto;top:22px;color:var(--accent);font-weight:700}
+#dock{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));width:min(600px,calc(100% - 20px));display:flex;gap:12px;align-items:center;padding:10px 10px 10px 18px;border-radius:26px;background:rgba(31,26,46,.92);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1.5px solid var(--line);box-shadow:0 14px 44px rgba(0,0,0,.6);transition:border-color .5s}
+#dock[data-s=ok]{border-color:var(--ok)}#dock[data-s=warn]{border-color:var(--warn)}#dock[data-s=bad]{border-color:var(--bad)}
+#dock div{flex:1;min-width:0}#dock b{display:block;font:700 18px Georgia,serif}#dock small{color:var(--mute);font-size:12px}#dock .btn{margin:0;width:auto;padding:14px 22px}
+#sheet{position:fixed;inset:0;z-index:40;background:rgba(5,4,10,.65);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s}
+#sheet.on{opacity:1;pointer-events:auto}
+.sh{position:absolute;left:0;right:0;bottom:0;top:7%;max-width:640px;margin:0 auto;background:var(--card);border-radius:28px 28px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .6s var(--spring)}
+#sheet.on .sh{transform:none}.shh{display:flex;gap:8px;padding:14px;align-items:center}.shh .btn{width:auto;margin:0;padding:12px 16px}
+#sl{overflow-y:auto;flex:1;padding:0 8px 28px}
+.pr{display:grid;grid-template-columns:1fr auto 76px;gap:10px;width:100%;padding:14px 12px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;text-align:left;align-items:center}
+.pr:active{background:var(--card2)}.pr b{font-size:16px}.pr small{color:var(--mute);font-weight:400}.pr em{font-style:normal;text-align:right;font-weight:700}
 </style>
 </head>
 <body>
-<header><h1>HyroCore2500 calc</h1><div class="utc" id="utc"></div></header>
+<header><h1>HyroCore2500</h1><div class="utc" id="utc"></div></header>
 <div id="alerts"></div>
 <div class="hero"><div class="rw"><svg class="ring" viewBox="0 0 120 120"><circle class="trk" cx="60" cy="60" r="52"/><circle class="arc" id="arc" cx="60" cy="60" r="52"/></svg><div class="rc"><b id="rv">$0.00</b><span>daily room</span></div></div>
 <div class="hs"><div><span>Equity</span><b id="he">$0.00</b></div><div><span>Room above the 5% floor</span><b id="hf">$0.00</b></div><div><span>Target progress</span><b id="ht"></b><u class="tb"><i id="hb"></i></u></div></div></div>
 <div class="stats" id="stats"></div>
-<nav id="nav"><i id="pill"></i><button data-t="calc" class="on">Check trade</button><button data-t="log">Trades</button><button data-t="rules">Rules</button></nav>
+<nav id="nav"><i id="pill"></i><button data-t="calc" class="on">Trade</button><button data-t="log">Positions</button><button data-t="rules">Rules</button></nav>
 <main>
 <section id="t-calc">
- <div class="card"><div class="step"><em>1</em>Pick the trade</div>
-  <div class="grid"><div><label>Pair</label><input id="sym" placeholder="BTCUSDT" autocapitalize="characters" list="pairs" autocomplete="off"><datalist id="pairs"></datalist></div>
-  <div><label>Direction</label><div class="seg"><button class="long on" data-d="long">Long</button><button class="short" data-d="short">Short</button></div></div></div>
+ <div class="card">
+  <button class="pairbtn" id="pairbtn"><span id="pairsym">Choose a pair</span><span id="pairpx"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><input id="sym" type="hidden">
+  <div class="seg" style="margin-top:10px"><button class="long on" data-d="long">Long ▲</button><button class="short" data-d="short">Short ▼</button></div>
   <div id="live"></div></div>
- <div class="card"><div class="step"><em>2</em>Set your levels</div>
-  <div class="grid"><div><label>Entry price</label><input id="entry" type="number" inputmode="decimal" step="any"></div>
+ <div class="card"><h2>Levels</h2>
+  <div class="grid"><div><label>Entry</label><input id="entry" type="number" inputmode="decimal" step="any"></div>
   <div><label>Stop-loss</label><input id="sl" type="number" inputmode="decimal" step="any"></div>
-  <div style="grid-column:1/3"><label>Take-profit (optional)</label><input id="tp" type="number" inputmode="decimal" step="any"></div></div></div>
- <div class="card"><div class="step"><em>3</em>Size it</div>
+  <div style="grid-column:1/3"><label>Take-profit (optional)</label><input id="tp" type="number" inputmode="decimal" step="any"></div></div>
+  <div id="ladder"></div></div>
+ <div class="card"><h2>Size</h2>
   <div class="grid"><div><label>Leverage (x)</label><input id="lev" type="number" inputmode="decimal" value="5"></div>
   <div><label>Size in USDT (notional)</label><input id="n" type="number" inputmode="decimal" step="any"></div></div>
+  <div class="chips" id="lv"><button data-v="3">3x</button><button data-v="5">5x</button><button data-v="10">10x</button><button data-v="20">20x</button></div>
+  <div class="chips" id="sz"><button data-f=".25">¼ of max</button><button data-f=".5">½ of max</button><button data-f="1">Max safe</button></div>
   <label class="chk"><input type="checkbox" id="alt"> Low-cap altcoin (5% size cap, 40% of profit counts)</label></div>
  <div id="out"></div>
 </section>
@@ -119,6 +152,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}td{padding:8px 0;border
  <div class="card"><h2>Hyro Core rules used</h2><table id="rtab"></table></div>
 </section>
 </main>
+<div id="dock" data-s="idle"><div><b id="dt">Fill in the ticket</b><small id="ds"></small></div><button class="btn" id="dl" disabled>Log trade</button></div>
+<div id="sheet"><div class="sh"><div class="shh"><input id="sq" placeholder="Search all pairs, e.g. SOL" autocomplete="off" autocapitalize="characters"><button class="btn alt" id="sx">Close</button></div><div id="sl"></div></div></div>
 <script>
 "use strict";
 var KEY="hyrocore2500",mem=null;
@@ -127,7 +162,7 @@ function load(){try{var r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}ca
 function save(){var s=JSON.stringify(D);mem=s;try{localStorage.setItem(KEY,s)}catch(e){}}
 var l0=load();if(l0){D=l0;D.set=Object.assign({stage:"eval",bal0:2500,fee:0.06,riskPct:1,maxTr:3},D.set)}
 var $=function(i){return document.getElementById(i)};
-var dir="long",lastSig="";
+var dir="long",lastSig="",lastR=null;
 function day(t){return new Date(t).toISOString().slice(0,10)}
 function m(x){var s=Math.abs(x).toFixed(2);return(x<0?"-":"")+"$"+s}
 function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
@@ -154,10 +189,10 @@ function state(){
   openRisk:openRisk,openN:openN,openM:openM,dailyBuf:dailyBuf,totalBuf:totalBuf,tradesToday:tradesToday,closed:closed,open:open,target:0.10*b}}
 
 /* ---------- trade evaluation ---------- */
-function evalTrade(){
+function evalTrade(nO){
  var S=D.set,st=state(),fee=S.fee/100;
- var entry=num("entry"),sl=num("sl"),lev=num("lev"),n=num("n");
- if(!(entry>0&&lev>0&&n>0))return null;
+ var entry=num("entry"),sl=num("sl"),lev=num("lev"),n=nO!==undefined?nO:num("n");
+ if(!(entry>0&&lev>0))return null;if(!(n>0)){if(!(sl>0))return null;var r0=evalTrade(1);if(!r0)return null;var r1=evalTrade(Math.max(0.01,Math.floor(r0.sug*100)/100));r1.auto=true;return r1}
  var alt=$("alt").checked,funded=S.stage==="funded";
  var slOk=sl>0&&(dir==="long"?sl<entry:sl>entry);
  var dist=slOk?Math.abs(entry-sl)/entry:NaN;
@@ -210,7 +245,7 @@ var tp=num("tp");
  if(slOk){var u=1.1*perUnit;caps.push((st.dailyBuf-st.openRisk)/u,(st.totalBuf-st.openRisk)/u,S.riskPct/100*st.equity/perUnit)}
  caps.push(2*st.b-st.openN,(0.25*st.b-st.openM)*lev);if(alt)caps.push(0.05*st.b);
  var sug=Math.max(0,Math.min.apply(null,caps));
- return{ck:ck,sev:sev,loss:loss,worst:worst,margin:margin,sug:sug,slOk:slOk,d1:st.dailyBuf-st.openRisk,lev:lev}}
+ return{n:n,ck:ck,sev:sev,loss:loss,worst:worst,margin:margin,sug:sug,slOk:slOk,d1:st.dailyBuf-st.openRisk,lev:lev}}
 
 function render(){
  var st=state(),S=D.set;
@@ -222,26 +257,26 @@ function render(){
   ["Target "+(S.stage==="eval"?"":"(eval only)"),m(st.counted)+" / "+m(st.target),""],
   ["Days · trades today",st.validDays+"/4 · "+st.tradesToday,""]
  ].map(function(x){return'<div class="stat"><span>'+x[0]+'</span><b class="'+x[2]+'">'+x[1]+"</b></div>"}).join("");
- var r=evalTrade(),o=$("out");document.body.dataset.s=r?r.sev:"idle";
- if(!r){o.innerHTML='<div class="card"><p class="note">Enter entry, stop-loss, leverage and size. The check updates as you type.</p></div>';}
+ var r=evalTrade(),o=$("out");lastR=r;document.body.dataset.s=r?r.sev:"idle";
+ if(!r){o.innerHTML='<div class="card"><p class="note">Enter an entry and a stop-loss, plus a take-profit if you have one. Size is optional: leave it empty and I’ll work out the biggest safe one.</p></div>';}
  else{
   var sig=r.sev+r.ck.map(function(c){return c.s}).join(""),fresh=sig!==lastSig;lastSig=sig;var title={ok:"Safe to place",warn:"Placeable with caution",bad:"Don’t place this trade"}[r.sev];
   var room=Math.max(r.d1,0.01),pct=Math.min(100,(r.worst||0)/room*100);
   var h='<div class="verdict '+r.sev+(fresh?" pop":"")+'"><h2>'+title+"</h2>";
   if(r.slOk)h+='<div class="bar"><i style="width:100%"></i><u style="width:'+pct.toFixed(1)+'%"></u></div><div class="cap">Worst case '+m(-r.worst)+" of "+m(Math.max(0,r.d1))+" daily room left (includes a 10% slippage cushion)</div>";
-  h+='<div style="margin-top:8px">Margin needed: <b>'+m(r.margin)+"</b> at "+r.lev+"x</div>";
+  h+=(r.auto?'<div class="cap" style="margin-top:6px">Auto-sized at the largest size that passes every check. Type your own size to override.</div>':"")+'<div style="margin-top:8px">Position <b>'+m(r.n)+'</b> · margin <b>'+m(r.margin)+"</b> at "+r.lev+"x</div>";
   h+='<div>Largest size that passes every check: <b>'+m(r.sug)+"</b> <button class=\"btn sm alt\" id=\"use\">Use</button></div></div>";
   h+='<div class="card'+(fresh?" fresh":"")+'">'+r.ck.map(function(c,i){return'<div class="chk-row" style="--i:'+i+'"><div class="dot '+c.s+'">'+({ok:"✓",warn:"!",bad:"✕",info:"i"}[c.s])+'</div><div><b>'+c.t+"</b><small>"+c.d+"</small></div></div>"}).join("")+"</div>";
-  h+='<button class="btn" id="log" '+(r.sev==="bad"?"disabled":"")+">"+(r.sev==="bad"?"Fix the failed checks to log":"Log as opened")+"</button>";
+  
   o.innerHTML=h;
   var u=$("use");if(u)u.onclick=function(){$("n").value=Math.floor(r.sug*100)/100;render()};
   var lg=$("log");if(lg&&r.sev!=="bad")lg.onclick=function(){logTrade(r)};
  }
- heroUI(st);liveUI(st);renderLogs(st);renderRules(st)}
+ heroUI(st);liveUI(st);ladderUI();dockUI();renderLogs(st);renderRules(st)}
 
 function logTrade(r){
  D.trades.push({id:Date.now(),sym:($("sym").value||"—").toUpperCase(),dir:dir,entry:num("entry"),sl:num("sl"),tp:num("tp")||null,
-  n:num("n"),lev:num("lev"),alt:$("alt").checked,openedAt:Date.now(),status:"open",risk:r.worst});
+  n:r.n,lev:num("lev"),alt:$("alt").checked,openedAt:Date.now(),status:"open",risk:r.worst});
  save();["entry","sl","tp","n","sym"].forEach(function(i){$(i).value=""});$("alt").checked=false;tab("log");render()}
 
 function closeTrade(id){
@@ -269,7 +304,7 @@ function renderRules(st){var b=st.b;
  ["Funded: payout","Up to "+m(0.05*b)+" profit per payout, then 80% split"],["Banned","Martingale, hedging between accounts, bots, copy trading"],["Inactivity","Trade at least once every 30 days"]];
  $("rtab").innerHTML=rows.map(function(r){return"<tr><td>"+r[0]+"</td><td>"+r[1]+"</td></tr>"}).join("")}
 
-var cur=0;function tab(t){var ix=["calc","log","rules"].indexOf(t);document.documentElement.style.setProperty("--dx",(ix>=cur?1:-1)*44+"px");cur=ix;$("pill").style.transform="translateX("+ix*100+"%)";["calc","log","rules"].forEach(function(k){$("t-"+k).classList.toggle("hide",k!==t)});
+var cur=0;function tab(t){$("dock").style.display=t==="calc"?"flex":"none";var ix=["calc","log","rules"].indexOf(t);document.documentElement.style.setProperty("--dx",(ix>=cur?1:-1)*44+"px");cur=ix;$("pill").style.transform="translateX("+ix*100+"%)";["calc","log","rules"].forEach(function(k){$("t-"+k).classList.toggle("hide",k!==t)});
  document.querySelectorAll("#nav button").forEach(function(b){b.classList.toggle("on",b.dataset.t===t)})}
 document.querySelectorAll("#nav button").forEach(function(b){b.onclick=function(){tab(b.dataset.t)}});
 document.querySelectorAll(".seg button").forEach(function(b){b.onclick=function(){dir=b.dataset.d;document.querySelectorAll(".seg button").forEach(function(x){x.classList.toggle("on",x===b)});render()}});
@@ -289,7 +324,7 @@ function heroUI(st){var room=Math.max(0,st.dailyBuf-st.openRisk),fr=Math.min(1,r
  $("ht").textContent=m(st.counted)+" / "+m(st.target);$("hb").style.width=Math.max(0,Math.min(1,st.counted/st.target))*100+"%"}
 var px={},fi={},feedOk=null,w;
 var allT=[],HOSTS=["https://api.bybit.com","https://api.bytick.com"];
-function fillList(){var dl=$("pairs");if(dl.children.length===allT.length)return;
+function fillList(){if($("sheet").classList.contains("on"))drawSheet();return;var dl=$("pairs");if(dl.children.length===allT.length)return;
  dl.innerHTML=allT.slice().sort(function(a,b){return b.turnover24h-a.turnover24h}).map(function(x){return'<option value="'+x.symbol+'">'}).join("")}
 function poll(){if(document.hidden)return;
  (function go(i){fetch(HOSTS[i]+"/v5/market/tickers?category=linear").then(function(r){return r.json()}).then(function(j){
@@ -299,7 +334,7 @@ function poll(){if(document.hidden)return;
   feedOk=Date.now();fillList();render()}).catch(function(){if(i<HOSTS.length-1)go(i+1);else{feedOk=0;render()}})})(0)}
 function msg(sy){if(feedOk===0)return"Can’t reach Bybit from this network. Check your connection or VPN, then wait a few seconds.";
  if(feedOk===null)return"Loading all Bybit USDT futures…";
- if(!sy)return allT.length+" Bybit USDT futures loaded. Start typing a pair.";
+ if(!sy)return allT.length+" Bybit USDT futures live. Tap the pair to choose one.";
  var b=sy.replace(/USDT$/,""),h=allT.filter(function(x){return x.symbol.indexOf(b)>-1}).slice(0,5);
  return esc(sy)+" isn’t an active Bybit USDT futures pair."+(h.length?" Did you mean: "+h.map(function(x){return'<button class="btn sm alt" data-s="'+x.symbol+'">'+x.symbol+"</button>"}).join(" ")+"?":"")}
 function liveUI(st){var sy=$("sym").value.trim().toUpperCase(),f=fi[sy],a=[];
@@ -313,6 +348,29 @@ function liveUI(st){var sy=$("sym").value.trim().toUpperCase(),f=fi[sy],a=[];
  if(st.totalBuf<0.3*0.05*st.b)a.push(["bad","Only "+m(Math.max(0,st.totalBuf))+" left above the 5% floor."]);
  $("alerts").innerHTML=a.map(function(x){return'<div class="alert '+x[0]+'">'+x[1]+"</div>"}).join("")}
 
+function ladderUI(){var e=num("entry"),sl=num("sl"),tp=num("tp"),lv=px[$("sym").value],el=$("ladder");
+ if(!(e>0&&sl>0)){el.innerHTML="";return}
+ var v=[e,sl,tp,lv].filter(function(x){return x>0}),lo=Math.min.apply(null,v),hi=Math.max.apply(null,v),pd=((hi-lo)||e*0.01)*0.15;lo-=pd;hi+=pd;
+ function x(q){return((q-lo)/(hi-lo)*100).toFixed(1)+"%"}function w(a,b){return(Math.abs(a-b)/(hi-lo)*100).toFixed(1)+"%"}
+ function mk(q,c,l){return q>0?'<i class="mk '+c+'" style="left:'+x(q)+'"><u>'+l+"</u></i>":""}
+ el.innerHTML='<div class="trk2"><b class="seg2 bad" style="left:'+x(Math.min(e,sl))+";width:"+w(e,sl)+'"></b>'+(tp>0?'<b class="seg2 ok" style="left:'+x(Math.min(e,tp))+";width:"+w(e,tp)+'"></b>':"")+mk(sl,"s","Stop")+mk(e,"e","Entry")+mk(tp,"t","Target")+mk(lv,"l","Now")+"</div>"}
+function dockUI(){var sy=$("sym").value,f=fi[sy],r=lastR;
+ $("pairsym").innerHTML=sy?sy.replace("USDT","")+"<small>/USDT</small>":"Choose a pair";
+ $("pairpx").innerHTML=f?f.last+'<em class="'+(f.ch<0?"neg":"pos")+'">'+(f.ch>0?"+":"")+(f.ch*100).toFixed(2)+"%</em>":"";
+ $("dock").dataset.s=r?r.sev:"idle";
+ $("dt").textContent=r?{ok:"Safe to place",warn:"Place with caution",bad:"Don’t place"}[r.sev]:"Fill in the ticket";
+ $("ds").textContent=r&&r.slOk?"Worst case "+m(-r.worst)+" · margin "+m(r.margin):"Pair, entry, stop and size";
+ $("dl").disabled=!r||r.sev==="bad"}
+function drawSheet(){var q=$("sq").value.trim().toUpperCase().replace(/USDT$/,""),L=allT.slice().sort(function(a,b){return b.turnover24h-a.turnover24h});
+ if(q)L=L.filter(function(x){return x.symbol.indexOf(q)>-1});var tot=L.length;
+ $("sl").innerHTML=L.slice(0,150).map(function(x){var c=x.price24hPcnt*100;return'<button class="pr" data-s="'+x.symbol+'"><b>'+x.symbol.replace("USDT","")+"<small> /USDT</small></b><span>"+x.lastPrice+'</span><em class="'+(c<0?"neg":"pos")+'">'+(c>0?"+":"")+c.toFixed(2)+"%</em></button>"}).join("")+(tot?'<p class="note" style="text-align:center">'+(tot>150?"Top 150 of "+tot+" by volume. Search to narrow.":tot+" pairs"):'<p class="note" style="text-align:center">'+(allT.length?"No pair matches.":"Loading pairs…"))+"</p>"}
+$("pairbtn").onclick=function(){$("sheet").classList.add("on");$("sq").value="";drawSheet();setTimeout(function(){$("sq").focus()},400)};
+$("sx").onclick=function(){$("sheet").classList.remove("on")};$("sq").oninput=drawSheet;
+$("sl").onclick=function(e){var b=e.target.closest("[data-s]");if(b){$("sym").value=b.dataset.s;$("sheet").classList.remove("on");render()}};
+$("lv").onclick=function(e){var b=e.target.closest("[data-v]");if(b){$("lev").value=b.dataset.v;render()}};
+$("sz").onclick=function(e){var b=e.target.closest("[data-f]");if(!b)return;var had=num("n")>0;if(!had){$("n").value="1";render()}
+ if(lastR){$("n").value=Math.floor(lastR.sug*parseFloat(b.dataset.f)*100)/100}else if(!had)$("n").value="";render()};
+$("dl").onclick=function(){if(lastR&&lastR.sev!=="bad")logTrade(lastR)};
 clock();setInterval(clock,30000);setInterval(poll,4000);void $("arc").getBoundingClientRect();render();poll();
 </script>
 </body>
