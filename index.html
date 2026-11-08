@@ -105,9 +105,14 @@ main{padding-bottom:130px}
 #sheet.on{opacity:1;pointer-events:auto}
 .sh{position:absolute;left:0;right:0;bottom:0;top:7%;max-width:640px;margin:0 auto;background:var(--card);border-radius:28px 28px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .6s var(--spring)}
 #sheet.on .sh{transform:none}.shh{display:flex;gap:8px;padding:14px;align-items:center}.shh .btn{width:auto;margin:0;padding:12px 16px}
-#sl{overflow-y:auto;flex:1;padding:0 8px 28px}
+#plist{overflow-y:auto;flex:1;padding:0 8px 28px}
 .pr{display:grid;grid-template-columns:1fr auto 76px;gap:10px;width:100%;padding:14px 12px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;text-align:left;align-items:center}
 .pr:active{background:var(--card2)}.pr b{font-size:16px}.pr small{color:var(--mute);font-weight:400}.pr em{font-style:normal;text-align:right;font-weight:700}
+.pr{grid-template-columns:44px 1fr auto 82px;gap:12px;padding:12px 8px}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:700 17px system-ui;font-style:normal;color:#fff}
+.pn b,.pp b{display:block;font-size:16px}.pn small,.pp small{display:block;color:var(--mute);font-size:12px;margin-top:1px}.pp{text-align:right}
+.pill{padding:9px 0;border-radius:20px;text-align:center;font-weight:700;font-size:14px;color:#fff;font-style:normal}.pill.dn{background:var(--bad)}.pill.up{background:var(--ok);color:#06251c}
+.chips button.on{border-color:var(--accent);color:var(--ink);background:var(--card2)}
 </style>
 </head>
 <body>
@@ -153,7 +158,7 @@ main{padding-bottom:130px}
 </section>
 </main>
 <div id="dock" data-s="idle"><div><b id="dt">Fill in the ticket</b><small id="ds"></small></div><button class="btn" id="dl" disabled>Log trade</button></div>
-<div id="sheet"><div class="sh"><div class="shh"><input id="sq" placeholder="Search all pairs, e.g. SOL" autocomplete="off" autocapitalize="characters"><button class="btn alt" id="sx">Close</button></div><div id="sl"></div></div></div>
+<div id="sheet"><div class="sh"><div class="shh"><input id="sq" placeholder="Search all pairs, e.g. SOL" autocomplete="off" autocapitalize="characters"><button class="btn alt" id="sx">Close</button></div><div class="chips" id="sortc" style="padding:0 14px 8px;align-items:center"><button data-o="vol" class="on">Volume</button><button data-o="up">Gainers</button><button data-o="dn">Losers</button><button data-o="az">A–Z</button><span id="scount" class="cap" style="flex:0 0 74px;text-align:right"></span></div><div id="plist"></div></div></div>
 <script>
 "use strict";
 var KEY="hyrocore2500",mem=null;
@@ -361,12 +366,20 @@ function dockUI(){var sy=$("sym").value,f=fi[sy],r=lastR;
  $("dt").textContent=r?{ok:"Safe to place",warn:"Place with caution",bad:"Don’t place"}[r.sev]:"Fill in the ticket";
  $("ds").textContent=r&&r.slOk?"Worst case "+m(-r.worst)+" · margin "+m(r.margin):"Pair, entry, stop and size";
  $("dl").disabled=!r||r.sev==="bad"}
-function drawSheet(){var q=$("sq").value.trim().toUpperCase().replace(/USDT$/,""),L=allT.slice().sort(function(a,b){return b.turnover24h-a.turnover24h});
- if(q)L=L.filter(function(x){return x.symbol.indexOf(q)>-1});var tot=L.length;
- $("sl").innerHTML=L.slice(0,150).map(function(x){var c=x.price24hPcnt*100;return'<button class="pr" data-s="'+x.symbol+'"><b>'+x.symbol.replace("USDT","")+"<small> /USDT</small></b><span>"+x.lastPrice+'</span><em class="'+(c<0?"neg":"pos")+'">'+(c>0?"+":"")+c.toFixed(2)+"%</em></button>"}).join("")+(tot?'<p class="note" style="text-align:center">'+(tot>150?"Top 150 of "+tot+" by volume. Search to narrow.":tot+" pairs"):'<p class="note" style="text-align:center">'+(allT.length?"No pair matches.":"Loading pairs…"))+"</p>"}
+var sortBy="vol";
+function fmtV(v){return v>=1e9?(v/1e9).toFixed(2)+"B":(v/1e6).toFixed(v>=1e8?1:2)+"M"}
+function drawSheet(){var q=$("sq").value.trim().toUpperCase().replace(/USDT$/,""),pl=$("plist"),sc=pl.scrollTop;
+ var L=allT.filter(function(x){return!q||x.symbol.indexOf(q)>-1});
+ var key={vol:function(a,b){return b.turnover24h-a.turnover24h},up:function(a,b){return b.price24hPcnt-a.price24hPcnt},dn:function(a,b){return a.price24hPcnt-b.price24hPcnt},az:function(a,b){return a.symbol<b.symbol?-1:1}}[sortBy];
+ L.sort(function(a,b){if(q){var A=a.symbol.indexOf(q)===0,B=b.symbol.indexOf(q)===0;if(A!==B)return A?-1:1}return key(a,b)});
+ $("scount").textContent=L.length+" pairs";
+ pl.innerHTML=L.map(function(x){var c=x.price24hPcnt*100,b=x.symbol.replace("USDT",""),h=0;for(var i=0;i<b.length;i++)h=(h*31+b.charCodeAt(i))%360;
+  return'<button class="pr" data-s="'+x.symbol+'"><i class="av" style="background:hsl('+h+',55%,42%)">'+esc(b.charAt(0))+'</i><span class="pn"><b>'+esc(x.symbol)+"</b><small>"+esc(b)+" | "+fmtV(x.turnover24h)+'</small></span><span class="pp"><b>'+x.lastPrice+"</b><small>"+x.lastPrice+' USD</small></span><em class="pill '+(c<0?"dn":"up")+'">'+(c>0?"+":"")+c.toFixed(2)+"%</em></button>"}).join("")||'<p class="note" style="text-align:center;padding:28px">'+(allT.length?"No pair matches “"+esc(q)+"”.":"Loading pairs…")+"</p>";
+ pl.scrollTop=sc}
+$("sortc").onclick=function(e){var b=e.target.closest("[data-o]");if(!b)return;sortBy=b.dataset.o;[].forEach.call(this.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b)});drawSheet()};
 $("pairbtn").onclick=function(){$("sheet").classList.add("on");$("sq").value="";drawSheet();setTimeout(function(){$("sq").focus()},400)};
 $("sx").onclick=function(){$("sheet").classList.remove("on")};$("sq").oninput=drawSheet;
-$("sl").onclick=function(e){var b=e.target.closest("[data-s]");if(b){$("sym").value=b.dataset.s;$("sheet").classList.remove("on");render()}};
+$("plist").onclick=function(e){var b=e.target.closest("[data-s]");if(b){$("sym").value=b.dataset.s;$("sheet").classList.remove("on");render()}};
 $("lv").onclick=function(e){var b=e.target.closest("[data-v]");if(b){$("lev").value=b.dataset.v;render()}};
 $("sz").onclick=function(e){var b=e.target.closest("[data-f]");if(!b)return;var had=num("n")>0;if(!had){$("n").value="1";render()}
  if(lastR){$("n").value=Math.floor(lastR.sug*parseFloat(b.dataset.f)*100)/100}else if(!had)$("n").value="";render()};
