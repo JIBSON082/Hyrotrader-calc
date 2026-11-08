@@ -90,7 +90,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td{padding:8px 0;border
 <main>
 <section id="t-calc">
  <div class="card"><div class="step"><em>1</em>Pick the trade</div>
-  <div class="grid"><div><label>Pair</label><input id="sym" placeholder="BTCUSDT" autocapitalize="characters"></div>
+  <div class="grid"><div><label>Pair</label><input id="sym" placeholder="BTCUSDT" autocapitalize="characters" list="pairs" autocomplete="off"><datalist id="pairs"></datalist></div>
   <div><label>Direction</label><div class="seg"><button class="long on" data-d="long">Long</button><button class="short" data-d="short">Short</button></div></div></div>
   <div id="live"></div></div>
  <div class="card"><div class="step"><em>2</em>Set your levels</div>
@@ -288,11 +288,23 @@ function heroUI(st){var room=Math.max(0,st.dailyBuf-st.openRisk),fr=Math.min(1,r
  cu($("rv"),room);cu($("he"),st.equity);cu($("hf"),Math.max(0,st.totalBuf-st.openRisk));
  $("ht").textContent=m(st.counted)+" / "+m(st.target);$("hb").style.width=Math.max(0,Math.min(1,st.counted/st.target))*100+"%"}
 var px={},fi={},feedOk=null,w;
-function syms(){var o={};D.trades.forEach(function(t){if(t.status==="open")o[t.sym]=1});var f=$("sym").value.trim().toUpperCase();if(/^[A-Z0-9]{4,20}$/.test(f))o[f]=1;return Object.keys(o)}
-function poll(){if(document.hidden)return;syms().forEach(function(s){fetch("https://api.bybit.com/v5/market/tickers?category=linear&symbol="+s).then(function(r){return r.json()}).then(function(j){var x=j.result&&j.result.list&&j.result.list[0];if(!x)return;var pv=px[s];px[s]=+x.lastPrice;fi[s]={d:pv===undefined||pv===px[s]?0:(px[s]>pv?1:-1),last:+x.lastPrice,fr:+x.fundingRate,ch:+x.price24hPcnt,to:+x.turnover24h};feedOk=Date.now();render()}).catch(function(){if(!feedOk||Date.now()-feedOk>15000)feedOk=0;render()})})}
+var allT=[],HOSTS=["https://api.bybit.com","https://api.bytick.com"];
+function fillList(){var dl=$("pairs");if(dl.children.length===allT.length)return;
+ dl.innerHTML=allT.slice().sort(function(a,b){return b.turnover24h-a.turnover24h}).map(function(x){return'<option value="'+x.symbol+'">'}).join("")}
+function poll(){if(document.hidden)return;
+ (function go(i){fetch(HOSTS[i]+"/v5/market/tickers?category=linear").then(function(r){return r.json()}).then(function(j){
+  var L=j.result&&j.result.list;if(!L||!L.length)throw 0;
+  allT=L.filter(function(x){return /USDT$/.test(x.symbol)});
+  allT.forEach(function(x){var k=x.symbol,pv=px[k];px[k]=+x.lastPrice;fi[k]={d:pv===undefined||pv===px[k]?0:(px[k]>pv?1:-1),last:+x.lastPrice,fr:+x.fundingRate,ch:+x.price24hPcnt,to:+x.turnover24h}});
+  feedOk=Date.now();fillList();render()}).catch(function(){if(i<HOSTS.length-1)go(i+1);else{feedOk=0;render()}})})(0)}
+function msg(sy){if(feedOk===0)return"Can’t reach Bybit from this network. Check your connection or VPN, then wait a few seconds.";
+ if(feedOk===null)return"Loading all Bybit USDT futures…";
+ if(!sy)return allT.length+" Bybit USDT futures loaded. Start typing a pair.";
+ var b=sy.replace(/USDT$/,""),h=allT.filter(function(x){return x.symbol.indexOf(b)>-1}).slice(0,5);
+ return esc(sy)+" isn’t an active Bybit USDT futures pair."+(h.length?" Did you mean: "+h.map(function(x){return'<button class="btn sm alt" data-s="'+x.symbol+'">'+x.symbol+"</button>"}).join(" ")+"?":"")}
 function liveUI(st){var sy=$("sym").value.trim().toUpperCase(),f=fi[sy],a=[];
- $("live").innerHTML=f?"Live <b class=\"tick "+(f.d>0?"up":f.d<0?"dn":"")+"\">"+f.last+"</b> · 24h "+(f.ch*100).toFixed(2)+"% · funding "+(f.fr*100).toFixed(4)+"%"+(f.to<1e8?" · thin volume ($"+(f.to/1e6).toFixed(1)+"M), may count as low-cap":"")+' <button class="btn sm alt" id="ul">Use as entry</button>':(sy?(feedOk===0?"No live price. Open this file in a normal browser tab and check the pair name.":"Looking up "+esc(sy)+"…"):"Type a pair such as BTCUSDT to get the live price.");
- var u=$("ul");if(u)u.onclick=function(){$("entry").value=f.last;render()};
+ $("live").innerHTML=f?"Live <b class=\"tick "+(f.d>0?"up":f.d<0?"dn":"")+"\">"+f.last+"</b> · 24h "+(f.ch*100).toFixed(2)+"% · funding "+(f.fr*100).toFixed(4)+"%"+(f.to<1e8?" · thin volume ($"+(f.to/1e6).toFixed(1)+"M), may count as low-cap":"")+' <button class="btn sm alt" id="ul">Use as entry</button>':msg(sy);
+ var u=$("ul");if(u)u.onclick=function(){$("entry").value=f.last;render()};document.querySelectorAll("#live [data-s]").forEach(function(b){b.onclick=function(){$("sym").value=b.dataset.s;render()}});
  st.open.forEach(function(t){if(!t.live)return;var lg=t.dir==="long";
   if(lg?t.live<=t.sl:t.live>=t.sl)a.push(["bad",t.sym+" reached your stop. Close it now."]);
   else if(t.tp&&(lg?t.live>=t.tp:t.live<=t.tp))a.push(["ok",t.sym+" reached your take-profit."])});
@@ -300,8 +312,8 @@ function liveUI(st){var sy=$("sym").value.trim().toUpperCase(),f=fi[sy],a=[];
  else if(st.dailyBuf<0.3*0.03*st.b)a.push(["warn","Daily room is almost gone ("+m(st.dailyBuf)+"). Stop trading for today."]);
  if(st.totalBuf<0.3*0.05*st.b)a.push(["bad","Only "+m(Math.max(0,st.totalBuf))+" left above the 5% floor."]);
  $("alerts").innerHTML=a.map(function(x){return'<div class="alert '+x[0]+'">'+x[1]+"</div>"}).join("")}
-$("sym").addEventListener("input",function(){clearTimeout(w);w=setTimeout(poll,400)});
-clock();setInterval(clock,30000);setInterval(poll,3000);void $("arc").getBoundingClientRect();render();poll();
+
+clock();setInterval(clock,30000);setInterval(poll,4000);void $("arc").getBoundingClientRect();render();poll();
 </script>
 </body>
 </html>
