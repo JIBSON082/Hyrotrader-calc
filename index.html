@@ -386,5 +386,51 @@ $("sz").onclick=function(e){var b=e.target.closest("[data-f]");if(!b)return;var 
 $("dl").onclick=function(){if(lastR&&lastR.sev!=="bad")logTrade(lastR)};
 clock();setInterval(clock,30000);setInterval(poll,4000);void $("arc").getBoundingClientRect();render();poll();
 </script>
+
+
+<script>
+/* HyroCore 5,000 account + payout planner. Paste this whole block right before </body>, after your main script. One paste, no other edits. */
+(function(){
+"use strict";
+KEY="hyrocore5000";
+var l5=load();if(l5){D=l5}else{D.trades=[]}
+D.set=Object.assign({stage:"eval",bal0:5000,fee:0.06,riskPct:1,maxTr:3},l5&&l5.set||{});
+["stage","bal0","fee","riskPct","maxTr"].forEach(function(k){$(k).value=D.set[k]});
+D.payouts=D.payouts||[];
+function brand(){var b=Math.round(D.set.bal0),h=document.querySelector("h1 span");document.title="HyroCore"+b+" calc";if(h)h.textContent=b}
+$("t-rules").insertAdjacentHTML("afterbegin",'<div class="card"><h2 class="step"><em>$</em>Payout planner<small>funded stage</small></h2><div id="paybody"></div><label for="wi" style="margin-top:14px">What-if: profit in the account (USDT)</label><input id="wi" type="number" inputmode="decimal" step="any" placeholder="e.g. 900"><div class="note" id="wio"></div></div>');
+function calc(st){var b=st.b,cap=0.05*b,fp=0;
+ D.trades.forEach(function(t){if(t.status==="closed"&&t.stage==="funded")fp+=(t.alt&&t.net>0)?t.net*0.4:t.net});
+ var paid=D.payouts.reduce(function(a,p){return a+p.g},0),av=Math.max(0,fp-paid);
+ return{b:b,cap:cap,fp:fp,paid:paid,av:av,pay:Math.min(av,cap),n:av>0?Math.ceil(av/cap-1e-9):0}}
+function bar(p,l,v){p=Math.max(0,Math.min(100,p));return'<div class="cap" style="margin-top:12px">'+l+" · "+v+'</div><div class="bar"><i></i><u style="width:'+p.toFixed(0)+'%;--bw:'+(p>0?Math.round(10000/Math.max(p,1)):100)+'%"></u></div>'}
+function wi(){var v=parseFloat($("wi").value),cap=0.05*D.set.bal0,o=$("wio");
+ if(!(v>0)){o.textContent="Type a profit amount to see how many payouts it takes.";return}
+ var n=Math.ceil(v/cap-1e-9);o.textContent=m(v)+" of profit takes "+n+(n===1?" payout":" payouts")+". First payout: you receive "+m(Math.min(v,cap)*0.8)+". Total you keep: "+m(v*0.8)+"."}
+function ui(st){var c=calc(st),h="",lim=Math.min(c.av,c.cap),last=0;
+ h+='<div class="vm"><div><span>Available profit</span><b>'+m(c.av)+'</b></div><div><span>Next payout, your 80%</span><b>'+m(c.pay*0.8)+"</b></div></div>";
+ h+='<p class="note">'+(c.av>0?"This payout draws "+m(c.pay)+" of profit (cap "+m(c.cap)+", 5% of the start balance) and "+m(c.pay*0.2)+" goes to the split. "+(c.av>c.pay?m(c.av-c.pay)+" waits for later payouts, "+c.n+" payouts in total.":"Nothing is left waiting."):"No payout available yet. Only closed trades logged while the stage is Funded count here.")+"</p>";
+ h+='<p class="note">Funded profit so far '+m(c.fp)+" · already drawn "+m(c.paid)+" (you received "+m(c.paid*0.8)+").</p>";
+ h+=bar(st.openM/(0.25*c.b)*100,"Margin in use, funded limit "+m(0.25*c.b),m(st.openM))+bar(st.openN/(2*c.b)*100,"Position size in use, funded limit "+m(2*c.b),m(st.openN));
+ D.trades.forEach(function(t){last=Math.max(last,t.closedAt||0,t.openedAt||0)});
+ if(last){var d=Math.floor((Date.now()-last)/864e5),left=30-d;h+='<p class="note" style="color:'+(left<=7?"var(--warn)":"var(--mute)")+'">Last trade '+d+(d===1?" day":" days")+" ago. "+(left>0?left+" days left before the 30-day inactivity rule closes the account.":"The 30-day inactivity limit has passed.")+"</p>"}
+ else h+='<p class="note">No trades logged yet. Hyro closes the account after 30 days without a trade.</p>';
+ if(D.set.stage!=="funded")h+='<p class="note">Stage is set to Evaluation. Switch it to Funded in Settings below once you pass, and the planner starts counting.</p>';
+ h+='<div class="row" style="margin-top:14px;gap:8px;justify-content:flex-start"><button class="btn sm" id="paylog"'+(c.pay>0?"":" disabled")+'>Log payout taken</button><button class="btn sm alt" id="payundo"'+(D.payouts.length?"":" disabled")+">Undo last</button></div>";
+ $("paybody").innerHTML=h;
+ $("paylog").onclick=function(){var v=parseFloat(prompt("Profit drawn in this payout, before the 80% split (max "+m(lim)+")",c.pay.toFixed(2)));
+  if(!(v>0)||v>lim+0.005)return;D.payouts.push({id:Date.now(),at:Date.now(),g:v});save();render()};
+ $("payundo").onclick=function(){D.payouts.pop();save();render()};
+ wi()}
+var _r=render;render=function(){_r();brand();ui(state())};
+var _l=logTrade;logTrade=function(r){var stg=D.set.stage;_l(r);var t=D.trades[D.trades.length-1];if(t&&!t.stage){t.stage=stg;save();render()}};
+var _o=$("reset").onclick;$("reset").onclick=function(){var b=D.trades.length;_o();if(b&&!D.trades.length){D.payouts=[];save();render()}};
+$("wi").addEventListener("input",wi);
+render();
+})();
+</script>
+
+
+
 </body>
 </html>
